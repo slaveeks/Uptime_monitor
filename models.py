@@ -8,10 +8,11 @@ class Site:
         self.domain = domain
 
     def get_count_in_db(self):
-        return db.stat.find({"site":self.domain}).count()
+        count = db.sites.find({"site":self.domain}).count()
+        return count
 
     def get_avg_of_time(self):
-        cursor = db.stat.find({"site": self.domain, "is_normal": True})
+        cursor = db.sites.find({"site": self.domain, "is_normal": True})
         i = 0
         sum = 0
         for document in cursor:
@@ -20,12 +21,12 @@ class Site:
         return sum/i
 
     def get_avg_of_size(self):
-        cursor = db.stat.find({"site": self.domain, "is_normal": True})
+        cursor = db.sites.find({"site": self.domain, "is_normal": True})
         i = 0
         sum = 0
         for document in cursor:
             i += 1
-            sum += document["size"]
+            sum += int(document["size"])
         return sum / i
 
     def insert_stat(self, time, size, code, is_normal):
@@ -35,10 +36,10 @@ class Site:
         if code != 200:
             print(123)
             return False
-        elif size > self.get_avg_of_size()*1.1 or size < self.get_avg_of_size()*0.9:
+        elif float(size) > self.get_avg_of_size()*1.1 or float(size) < self.get_avg_of_size()*0.9:
             print(321)
             return False
-        elif time > self.get_avg_of_time()*1.4 or time < self.get_avg_of_time()*0.6:
+        elif float(time) > self.get_avg_of_time()*1.4 or float(time) < self.get_avg_of_time()*0.6:
             print(121)
             return False
         return True

@@ -3,7 +3,7 @@ import aiohttp
 import time
 import models
 
-sites = ["https://vk.com", "https://github.com"]
+sites = ["https://vk.com", "https://ok.ru"]
 
 async def check(domain):
     site = models.Site(domain)
