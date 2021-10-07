@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import aiohttp
 
 client = MongoClient('127.0.0.1', 27017)
 db = client.sites
@@ -34,12 +35,24 @@ class Site:
 
     def check_data(self, time, size, code):
         if code != 200:
-            print(123)
-            return False
-        elif float(size) > self.get_avg_of_size()*1.1 or float(size) < self.get_avg_of_size()*0.9:
-            print(321)
-            return False
-        elif float(time) > self.get_avg_of_time()*1.4 or float(time) < self.get_avg_of_time()*0.6:
-            print(121)
-            return False
-        return True
+            text = "On "+self.domain+" error code:"+code
+            data = {
+                'message': text,
+                'parse_mode': 'HTML'
+            }
+            return data
+        elif size > self.get_avg_of_size()*1.1 or size < self.get_avg_of_size()*0.9:
+            text = "On "+self.domain+" troubles with size, avg: "+str(self.get_avg_of_size())+", but now:"+str(size)
+            data = {
+                'message': text,
+                'parse_mode': 'HTML'
+            }
+            return data
+        elif time > self.get_avg_of_time()*3:
+            text = "On "+self.domain+" troubles with time, avg: "+str(self.get_avg_of_time())+", but now:"+str(time)
+            data = {
+                'message': text,
+                'parse_mode': 'HTML'
+            }
+            return data
+        return None
