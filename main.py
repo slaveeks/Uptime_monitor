@@ -2,14 +2,13 @@ import asyncio
 import aiohttp
 import time
 import models
-
-sites = ["https://habr.com", "https://vk.com", "https://codex.so"]
+import config
 
 
 async def send_to_chat(data):
     print(data)
     async with aiohttp.ClientSession() as session:
-        async with session.post('https://notify.bot.codex.so/u/TOKEN', data=data) as resp: # [1]
+        async with session.post('https://notify.bot.codex.so/u/'+config.TOKEN, data=data) as resp: # [1]
             response = await resp.text()
             print(response)
 
@@ -40,7 +39,7 @@ async def schedul():
         await main()
 
 async def main():
-    tasks = [check(site) for site in sites]
+    tasks = [check(site) for site in config.SITES]
     await asyncio.sleep(4)
     await asyncio.wait(tasks)
 

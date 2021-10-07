@@ -42,14 +42,14 @@ class Site:
             }
             return data
         elif size > self.get_avg_of_size()*1.1 or size < self.get_avg_of_size()*0.9:
-            text = "On "+self.domain+" troubles with size, avg: "+str(self.get_avg_of_size())+", but now:"+str(size)
+            text = "On "+self.domain+" troubles with size, avg: "+str(round(self.get_avg_of_size()))+", but now:"+str(round(size))
             data = {
                 'message': text,
                 'parse_mode': 'HTML'
             }
             return data
         elif time > self.get_avg_of_time()*3:
-            text = "On "+self.domain+" troubles with time, avg: "+str(self.get_avg_of_time())+", but now:"+str(time)
+            text = "On "+self.domain+" troubles with time, avg: "+str(round(self.get_avg_of_time()))+", but now:"+str(round(time))
             data = {
                 'message': text,
                 'parse_mode': 'HTML'
