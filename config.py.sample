@@ -1,0 +1,2 @@
+SITES = []
+TOKEN = ''
