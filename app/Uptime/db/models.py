@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-client = MongoClient('127.0.0.1', 27017)
+client = MongoClient('mongodb', 27017)
 db = client.sites
 
 
@@ -10,7 +10,7 @@ class Site:
         self.size = None
         self.time = None
         self.code = None
-        self.is_normal = None
+        self.is_normal = True
 
     def get_count_in_db(self):
         count = db.sites.find({"site": self.domain}).count()

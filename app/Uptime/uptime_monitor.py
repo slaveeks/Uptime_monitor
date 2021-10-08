@@ -8,9 +8,9 @@ class UptimeMonitor:
     def __init__(self, sites, token):
         self.sites = sites
         self.token = token
-        ioloop = asyncio.get_event_loop()
-        ioloop.run_until_complete(self.schedul())
-        ioloop.close()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.scheduler())
+        loop.close()
 
     async def send_to_chat(self, data):
         async with aiohttp.ClientSession() as session:
@@ -28,11 +28,11 @@ class UptimeMonitor:
         response.close()
         if site.get_count_in_db() >= 25:
             data = site.check_data()
-            if data != None:
+            if data is not None:
                 await self.send_to_chat(data)
         site.insert_stat()
 
-    async def schedul(self):
+    async def scheduler(self):
         while True:
             await self.check_sites()
 
