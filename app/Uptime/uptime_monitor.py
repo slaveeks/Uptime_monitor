@@ -5,25 +5,28 @@ from Uptime.db import models
 
 
 class UptimeMonitor:
-    def __init__(self, sites, token):
+    def __init__(self, sites, endpoint):
         self.sites = sites
-        self.token = token
+        self.webhook_endpoint = endpoint
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.scheduler())
         loop.close()
 
     async def send_to_chat(self, data):
         async with aiohttp.ClientSession() as session:
-            async with session.post('https://notify.bot.codex.so/u/' + self.token, data=data) as resp:
+            async with session.post(self.webhook_endpoint, data=data) as resp:
                 response = await resp.text()
                 print(response)
 
     async def check(self, domain):
         site = models.Site(domain)
+        await asyncio.sleep(20)
         start = time.time() * 1000
-        async with aiohttp.request('GET', site.domain) as response:
+        site.time_of_check = time.asctime()
+        async with aiohttp.ClientSession() as session:
+            response = await session.get(site.domain, ssl=False)
             site.time = time.time() * 1000 - start
-            site.size = response.content.total_bytes / 1024
+            site.size = response.content.total_bytes
             site.code = response.status
         response.close()
         if site.get_count_in_db() >= 25:
@@ -38,5 +41,4 @@ class UptimeMonitor:
 
     async def check_sites(self):
         tasks = [self.check(site) for site in self.sites]
-        await asyncio.sleep(4)
         await asyncio.wait(tasks)
