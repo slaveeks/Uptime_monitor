@@ -1,3 +1,3 @@
-SITES = []
-TOKEN = ''
+SITES = [] #Array of sites' domains
+WEBHOOK_ENDPOINT = '' #Endpoint of notify
 DATABASE = ""

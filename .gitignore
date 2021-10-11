@@ -2,3 +2,4 @@
 __pycache__
 app/config.py
 venv
+app/.DS_Store

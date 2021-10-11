@@ -6,6 +6,11 @@ from Uptime.db import models
 
 class UptimeMonitor:
     def __init__(self, sites, endpoint):
+        """
+        Initialize class
+        :param sites: Array of sites' domains, which need to be checked
+        :param endpoint: endpoint for sending to telegram chat
+        """
         self.sites = sites
         self.webhook_endpoint = endpoint
         loop = asyncio.get_event_loop()
@@ -13,12 +18,20 @@ class UptimeMonitor:
         loop.close()
 
     async def send_to_chat(self, data):
+        """
+        Send request to server, which send webhook to chat
+        :param data: Dict with some info for webhook
+        """
         async with aiohttp.ClientSession() as session:
             async with session.post(self.webhook_endpoint, data=data) as resp:
                 response = await resp.text()
                 print(response)
 
     async def check(self, domain):
+        """
+        Sending get requests to site and check it's answer
+        :param domain: Domain of site, which need to be checked
+        """
         site = models.Site(domain)
         await asyncio.sleep(20)
         start = time.time() * 1000
@@ -36,9 +49,15 @@ class UptimeMonitor:
         site.insert_stat()
 
     async def scheduler(self):
+        """
+        Make a cycle of checking sites
+        """
         while True:
             await self.check_sites()
 
     async def check_sites(self):
+        """
+        Make functions check(site) by using array of sites
+        """
         tasks = [self.check(site) for site in self.sites]
         await asyncio.wait(tasks)
