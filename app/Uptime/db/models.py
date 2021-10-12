@@ -22,7 +22,7 @@ class Site:
         self.time_of_check = None
         self.is_normal = True
         self.check_create_table("sites")
-        self.table = Table('sites', self.metadata, autoload = True)
+        self.table = Table('sites', self.metadata, autoload=True)
 
     def get_count_in_db(self):
         """
@@ -31,6 +31,7 @@ class Site:
         """
         cur = select([func.count(self.table.columns.id)]).where(self.table.columns.site == self.domain)
         res = con.execute(cur)
+        count = 0
         for row in res:
             count = row.count
         return count
@@ -68,7 +69,7 @@ class Site:
         Inserts data to DataBase
         """
         ins = self.table.insert().values(site=self.domain, time=self.time, size=self.size,
-                                       code=self.code, is_normal=self.is_normal, time_of_check=self.time_of_check)
+                                         code=self.code, is_normal=self.is_normal, time_of_check=self.time_of_check)
         con.execute(ins)
 
     @staticmethod

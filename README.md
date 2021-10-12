@@ -20,5 +20,6 @@ You can use docker to start checking
 ```
 cd Uptime_monitor
 dcoker-compose build
-docker-compose up
+docker-compose up postgres
+docker-compose up uptime_monitor
 ```
