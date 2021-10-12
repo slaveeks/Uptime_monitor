@@ -23,7 +23,7 @@ class UptimeMonitor:
         :param data: Dict with some info for webhook
         """
         async with aiohttp.ClientSession() as session:
-            async with session.post(self.webhook_endpoint, data=data) as resp:
+            async with session.post(self.webhook_endpoint, data=data, ssl = False) as resp:
                 response = await resp.text()
                 print(response)
 
@@ -33,7 +33,6 @@ class UptimeMonitor:
         :param domain: Domain of site, which need to be checked
         """
         site = models.Site(domain)
-        await asyncio.sleep(20)
         start = time.time() * 1000
         site.time_of_check = time.asctime()
         async with aiohttp.ClientSession() as session:
@@ -60,4 +59,5 @@ class UptimeMonitor:
         Make functions check(site) by using array of sites
         """
         tasks = [self.check(site) for site in self.sites]
+        tasks.append(asyncio.sleep(10))
         await asyncio.wait(tasks)

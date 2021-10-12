@@ -1,8 +1,11 @@
-from pymongo import MongoClient
+from sqlalchemy import create_engine, MetaData, Column, Integer, Date, String, Float, Table, Boolean, func, select
+from sqlalchemy_utils import database_exists, create_database
 import config
 
-client = MongoClient(config.DATABASE, 27017)
-db = client.sites
+engine = create_engine("postgresql+psycopg2://" + config.DATABASE)
+if not database_exists(engine.url):
+    create_database(engine.url)
+con = engine.connect()
 
 
 class Site:
@@ -11,32 +14,39 @@ class Site:
         Initialize class
         :param domain: Domain of site, which is checking
         """
+        self.metadata = None
         self.domain = domain
         self.size = None
         self.time = None
         self.code = None
         self.time_of_check = None
         self.is_normal = True
+        self.check_create_table("sites")
+        self.table = Table('sites', self.metadata, autoload = True)
 
     def get_count_in_db(self):
         """
         Counting the number of checking site in db
         :return: int
         """
-        count = db.sites.find({"site": self.domain}).count()
-        return count
+        cur = select([func.count(self.table.columns.id)]).where(self.table.columns.site == self.domain)
+        res = con.execute(cur)
+        for row in res:
+            print(row.count)
+        return row.count
 
     def get_avg_of_time(self):
         """
         Calculates the average request time from db for this site
         :return: float
         """
-        cursor = db.sites.find({"site": self.domain, "is_normal": True})
+        s = self.table.select().where(self.table.columns.site == self.domain, self.table.columns.is_normal)
+        results = con.execute(s)
         i = 0
         all_time = 0
-        for document in cursor:
+        for result in results:
             i += 1
-            all_time += document["time"]
+            all_time += result["time"]
         return all_time / i
 
     def get_avg_of_size(self):
@@ -44,21 +54,22 @@ class Site:
         Calculates the average request size from db for this site
         :return: float
         """
-        cursor = db.sites.find({"site": self.domain, "is_normal": True})
+        s = self.table.select().where(self.table.columns.site == self.domain, self.table.columns.is_normal)
+        results = con.execute(s)
         i = 0
         all_size = 0
-        for document in cursor:
+        for result in results:
             i += 1
-            all_size += int(document["size"])
+            all_size += int(result["size"])
         return all_size / i
 
     def insert_stat(self):
         """
         Inserts data to DataBase
         """
-        db.sites.insert_one(
-            {"site": self.domain, "time": self.time, "size": self.size,
-             "code": self.code, "is_normal": self.is_normal, "time_of_check": self.time_of_check})
+        ins = self.table.insert().values(site=self.domain, time=self.time, size=self.size,
+                                       code=self.code, is_normal=self.is_normal, time_of_check=self.time_of_check)
+        con.execute(ins)
 
     @staticmethod
     def data_for_webhook(text):
@@ -72,6 +83,16 @@ class Site:
             'parse_mode': 'HTML'
         }
         return data
+
+    def check_create_table(self, table_name):
+        self.metadata = MetaData(engine)
+        if not engine.dialect.has_table(con, table_name):
+            Table("sites", self.metadata,
+                  Column('id', Integer, primary_key=True, nullable=False),
+                  Column('site', String), Column('time', Float),
+                  Column('size', Float), Column('code', Integer), Column('is_normal', Boolean),
+                  Column('time_of_check', Date))
+            self.metadata.create_all()
 
     def check_data(self):
         """
