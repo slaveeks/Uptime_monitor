@@ -4,3 +4,4 @@ app/config.py
 venv
 app/.DS_Store
 .DS_Store
+postgres-data

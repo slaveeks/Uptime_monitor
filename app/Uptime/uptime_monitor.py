@@ -59,5 +59,5 @@ class UptimeMonitor:
         Make functions check(site) by using array of sites
         """
         tasks = [self.check(site) for site in self.sites]
-        tasks.append(asyncio.sleep(10))
+        tasks.append(asyncio.sleep(60))
         await asyncio.wait(tasks)

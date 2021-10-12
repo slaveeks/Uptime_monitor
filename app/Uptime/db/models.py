@@ -32,8 +32,8 @@ class Site:
         cur = select([func.count(self.table.columns.id)]).where(self.table.columns.site == self.domain)
         res = con.execute(cur)
         for row in res:
-            print(row.count)
-        return row.count
+            count = row.count
+        return count
 
     def get_avg_of_time(self):
         """

@@ -1,4 +1,5 @@
 version: "3.3"
+
 services:
   python-parser:
     build:
@@ -7,10 +8,12 @@ services:
     command: python main.py
     volumes:
       - ./app:/home/app/
-
-  mongodb:
-    image: mongo
-    volumes:
-      - ~/mongodb:/data/db
+  postgres:
+    image: postgres:10.5
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
     ports:
-      - "127.0.0.1:27017:27017"
+     - '5432:5432'
+    volumes: 
+     - ./postgres-data:/var/lib/postgresql/data
